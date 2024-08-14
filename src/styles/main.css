@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.table :where(thead, tfoot) :where(th, td):first-child {
+  @apply rounded-bl-none;
+}
+.table :where(thead, tfoot) :where(th, td):last-child {
+  @apply rounded-br-none;
+}
+
+/* INPUTS */
+@layer components {
+  .inputCustom {
+    @apply border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 text-gray-800  mt-1 block w-full shadow-sm sm:text-sm rounded-md;
+    &.error {
+      @apply border-red-600 focus:ring-red-500 focus:border-red-500 text-red-800;
+    }
+  }
+}

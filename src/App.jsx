@@ -1,35 +1,100 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Layout from './containers/Layout';
+import Clients from './pages/Clients/Clients';
+import NewClient from './pages/Clients/NewClient';
+import ListClients from './pages/Clients/ListClients';
+import ViewClient from './pages/Clients/ViewClient';
+import EditClient from './pages/Clients/EditClient';
 
-function App() {
-  const [count, setCount] = useState(0)
+import Providers from './pages/Providers/Providers';
+import ExtraActivities from './pages/ExtraActivities/ExtraActivities';
+import ToastProvider from './hooks/useToast';
 
+import ItemsTable from './components/SkeletonLoader/Activities/ItemsTable';
+// import Login from './pages/Login';
+import Working from './components/Pages404/Working';
+import NewProvider from './pages/Providers/NewProvider';
+import EditProvider from './pages/Providers/EditProvider';
+import ListProviders from './pages/Providers/ListProviders';
+import { ViewProviderRoute } from './utils/BreadcrumbRoutes';
+import ViewProvider from './pages/Providers/ViewProvider';
+
+const App = () => {
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <BrowserRouter>
+      <Routes>
+        <Route element={<ToastProvider />}>
+          {/* Login, LogOut, etc */}
+          {/* <Route path='/login' element={<Login />} /> */}
 
-export default App
+          {/* Dashboard */}
+          <Route element={<Layout />}>
+            <Route path='/' element={<Working />} />
+            <Route path='/caja' element={<Working />}>
+              <Route path='nuevo-movimiento' element={<Working />} />
+            </Route>
+
+            {/* CLIENTES */}
+            <Route path='/clientes' element={<Clients />} />
+            <Route path='/clientes/ver-clientes' element={<ListClients />} />
+            <Route path='/clientes/nuevo-cliente' element={<NewClient />} />
+            <Route path='/clientes/ver-cliente/:id' element={<ViewClient />} />
+            <Route
+              path='/clientes/editar-cliente/:id'
+              element={<EditClient />}
+            />
+
+            {/* Actividades */}
+            <Route path='/clientes/actividades' element={<ExtraActivities />} />
+            {/* Productos */}
+            <Route path='/productos' element={<Working />} />
+            {/* Proveedores */}
+            <Route path='/proveedores' element={<Providers />} />
+            <Route path='/proveedores/ver-proveedores' element={<ListProviders />} />
+            <Route path='/proveedores/nuevo-proveedor' element={<NewProvider />} />
+            <Route path='/proveedores/ver-proveedor/:id' element={<ViewProvider />} />
+            <Route
+              path='/proveedores/editar-proveedor/:id'
+              element={<EditProvider />}
+            />
+            {/* Pendientes */}
+            <Route path='/pendientes' element={<Working />} />
+          </Route>
+          {/* 404 */}
+          <Route path='*' element={<Working />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
+const useAuth = () => {
+  const [auth, setAuth] = useState({
+    jwt: localStorage.getItem('jid') || undefined,
+  });
+
+  useEffect(() => {
+    auth?.jwt && getProfile(auth.jwt);
+  }, []);
+
+  const login = (jwt, user) => {
+    localStorage.setItem('jid', jwt);
+    setAuth({ jwt, user });
+  };
+
+  const logout = () => {
+    localStorage.removeItem('jid');
+    setAuth(undefined);
+  };
+
+  const getProfile = async (jwt) => {
+    const profileResponse = await profileRequest(jwt);
+
+    profileResponse.error
+      ? logout()
+      : setAuth({ jwt, user: profileResponse.data });
+  };
+};
+
+export default App;
